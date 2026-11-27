@@ -1,0 +1,54 @@
+# Project Architecture Rules: UsageMonitor (Windows Desktop)
+
+You are an expert Windows systems / desktop engineer. This repository is a **.NET Framework WinForms** network monitor (not a web modular monolith).
+
+## Layering
+
+```
+App (WinForms) → Core (RuleEngine) → Capture / Proxy / Storage
+```
+
+- Controllers/web/EF rules from clinic templates do **not** apply.
+- Packet enforce logic lives in `UsageMonitor.Capture`.
+- Policy evaluation lives in `UsageMonitor.Core` (unit-tested without drivers).
+- Persistence via `IPolicyStore` / `ITrafficStore` only.
+
+## File Header Standard
+
+Every newly created or modified file MUST include:
+
+```
+/*
+ File: path/filename
+ Description: functionalities
+ Parent Dependencies: ...
+ */
+```
+
+## Language & Comments
+
+- Inline comments that explain **why / business constraint** MUST be Persian where the change is domain-critical.
+- No trivial comments.
+
+## Security / network product constraints
+
+- No MITM / TLS interception in v1 (SNI/Host only).
+- Ask-once must not deadlock the UI thread of the whole desktop indefinitely — use queue + timeout.
+- Require Administrator for enforce mode; degrade to monitor-only if WinDivert unavailable.
+- Do not commit secrets or proxy passwords in docs samples beyond placeholders.
+
+## Docs
+
+- Index: `docs/README.md`
+- Behavior changes → update `docs/use-cases.md` and `docs/manual-test-matrix.md`
+- UC ids: UC-MON / UC-ASK / UC-LIM / UC-PRX / UC-RPT
+
+## Tests
+
+- Prefer fast Core unit tests without drivers.
+- Name scenarios after UC ids.
+- Gate: `tests/UsageMonitor.Core.Tests` console runner exit code 0.
+
+## Overlay
+
+Concrete paths and notes: `.cursor/rules/project-context.mdc`

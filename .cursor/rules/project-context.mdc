@@ -1,0 +1,52 @@
+---
+description: Project overlay — UsageMonitor Windows desktop network monitor
+alwaysApply: true
+---
+
+# Project context (UsageMonitor)
+
+این ریپو یک **اپ دسکتاپ ویندوز** است، نه modular monolith وب Nabz. قوانین لایه‌بندی EF / CORS / OTP روی این پروژه اعمال نمی‌شود.
+
+## محصول
+
+- نام: UsageMonitor
+- UI: WinForms + System Tray
+- Target: .NET Framework **v4.8** (کد سازگار با سبک 4.5؛ Developer Pack 4.5 روی ماشین بیلد ناقص بود)
+- Elevation: `requireAdministrator`
+- Capture: WinDivert (enforce) + IP Helper (monitor-only fallback)
+- Host visibility: SNI / HTTP Host — **بدون MITM**
+- Persistence: JSON در `%LocalAppData%\UsageMonitor`
+
+## لایه‌ها
+
+| لایه | مسیر |
+|------|------|
+| UI | `src/UsageMonitor.App` |
+| Domain | `src/UsageMonitor.Core` |
+| Capture | `src/UsageMonitor.Capture` |
+| Proxy | `src/UsageMonitor.Proxy` |
+| Storage | `src/UsageMonitor.Storage` |
+| Tests | `tests/UsageMonitor.Core.Tests` |
+
+مرجع طلایی دامنه: `RuleEngine` + `NetworkMonitorService`
+
+## UCها
+
+| شناسه | سند |
+|-------|-----|
+| UC-MON-01 | `docs/use-cases.md` |
+| UC-ASK-01 | `docs/use-cases.md` |
+| UC-LIM-01 | `docs/use-cases.md` |
+| UC-PRX-01 | `docs/use-cases.md` |
+| UC-RPT-01 | `docs/use-cases.md` |
+
+تست: اجرای `UsageMonitor.Core.Tests.exe` (بدون NUnit NuGet)
+
+## اسناد
+
+ایندکس: `docs/README.md`  
+Deploy محلی: `installer/build.ps1` + `installer/install-windivert.ps1`
+
+## Native
+
+WinDivert در `third_party/WinDivert/{x86,x64}` — بدون DLL → monitor-only

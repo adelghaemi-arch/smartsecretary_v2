@@ -1,0 +1,22 @@
+/*
+ File: .cursor/rules/services-no-ef.mdc
+ Description: ممنوعیت EF در Services — جزئیات Nabz
+ Parent Dependencies: .cursorrules §0, project-context.mdc, backend-layering.mdc
+ */
+
+---
+description: Services must not reference EF
+globs: backend/src/Nabz.Infrastructure/**/*.cs
+alwaysApply: false
+---
+
+# Services — بدون EF
+
+استاندارد پرتابل: [`.cursorrules`](../../.cursorrules) §0. مسیر لایه‌ها: [`project-context.mdc`](project-context.mdc).
+
+در `Nabz.Infrastructure` و `Nabz.Application`:
+
+- ممنوع: `using Microsoft.EntityFrameworkCore`
+- ممنوع: تزریق `NabzDbContext`
+- ممنوع: `SaveChanges` / `Include` / `ToListAsync` اکستنشن EF
+- مجاز: `I*Repository` و `IUnitOfWork` و `IAsyncQuery`

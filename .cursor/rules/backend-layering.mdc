@@ -1,0 +1,25 @@
+/*
+ File: .cursor/rules/backend-layering.mdc
+ Description: لایه‌بندی بک‌اند Nabz — جزئیات دامنه روی استاندارد پرتابل
+ Parent Dependencies: .cursorrules §0, project-context.mdc
+ */
+
+---
+description: Backend layering for Nabz modular monolith (v1)
+globs: backend/**/*.cs
+alwaysApply: false
+---
+
+# Backend layering (Nabz)
+
+استاندارد پرتابل: [`.cursorrules`](../../.cursorrules) §0. نام لایه‌ها و جفت طلایی: [`project-context.mdc`](project-context.mdc).
+
+زنجیره اجباری:
+
+`Controller → I*Service → *Service → I*Repository → *Repository → SQL`
+
+- Controllers فقط `I*Service` و DTO
+- Services هرگز `NabzDbContext` / `Microsoft.EntityFrameworkCore` / `Nabz.Database.EF.Sql`
+- EF فقط در `Nabz.Database.EF.Sql`
+- materialize با `IAsyncQuery` یا متد Repository
+- دامنه v1: بدون Rooms/Stations/Companion/Appointment

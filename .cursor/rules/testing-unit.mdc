@@ -1,0 +1,52 @@
+/*
+ File: .cursor/rules/testing-unit.mdc
+ Description: اسکلت و قواعد Unit/API smoke هم‌تراز چرخه UC→مستند→تست
+ Parent Dependencies: .cursorrules §4.1, project-context.mdc, docs/shared/unit-test-scenarios.md
+ */
+
+---
+description: Unit و API smoke برای یوزکیس‌های v1 — اسکلت، نام‌گذاری، ممنوعیت EF
+globs: "**/tests/**,**/__tests__/**,**/*.test.ts,**/*.test.tsx,**/*Tests*.cs"
+alwaysApply: false
+---
+
+# Testing — Unit / API smoke
+
+چرخه پرتابل: [`.cursorrules`](../../.cursorrules) §4.1 (**پکیج توسعه**). پیشوند نقش و نگاشت UC: [`project-context.mdc`](project-context.mdc).
+
+## الزام
+
+جریان نهایی‌شدهٔ کاربر و هر UC جدید/تغییریافته یک **پکیج** است: ردیف در `docs/shared/unit-test-scenarios.md` + تست بک + تست فرانت (+ smoke اگر HTTP بحرانی) + اطمینان پوشش توسط `server/pre-publish-tests.bat` (اصلاح bat اگر پروژه/گام جدید).
+
+## بک‌اند
+
+- پروژه‌ها: `backend/tests/Nabz.Infrastructure.Tests` (unit سرویس)، `backend/tests/Nabz.Api.Tests` (smoke)
+- فقط `I*Repository` / `IUnitOfWork` / `ISmsSender` / `IFileStorage` — **بدون** `NabzDbContext` و EF در تست سرویس
+- نام کلاس: `Uc{Role}{NN}_{Topic}Tests` مثلاً `UcOwn01_AuthOtpTests`
+- هر `Fact`/`Theory` باید در نام یا trait به `UC-xxx` اشاره کند
+- FixedOtp در تست Auth: Options با `FixedOtp` غیرخالی؛ `ISmsSender` نباید صدا زده شود
+
+## فرانت
+
+- Vitest + jsdom؛ Testing Library برای گیت UI نقش
+- `describe('UC-OWN-01', …)` یا فایل `uc-own-01.*.test.ts`
+- تمرکز: منطق خالص (`form-engine`, `owner-intake-gate`, `workspace`, …) و گیت‌های نقش — نه E2E کامل مرورگر مگر جداگانه خواسته شود
+
+## API smoke
+
+- `WebApplicationFactory` + `Auth:FixedOtp`؛ بدون وابستگی به SMS واقعی
+- **فقط MSSQL لوکال** با `MigrateAsync` (همان migrations پروداکشن) — SQLite / `EnsureCreated` ممنوع
+- هر factory یک دیتابیس ephemeral (`NabzClinic_ApiSmoke_{guid}`) جدا از `NabzClinic` dev؛ در `Dispose` drop شود
+- حداقل: request/verify OTP و `GET` snapshot/me مرتبط با owner
+
+## دروازهٔ قبل‌از‌انتشار (عملیاتی)
+
+- اجرا: `server/pre-publish-tests.bat` (از `publish.bat` یا جداگانه)
+- قبل از تست: بستن `Nabz.Api` / `testhost` برای جلوگیری از قفل DLL
+- گزارش: `server/test-reports/`
+
+## ممنوع
+
+- تست بدون نگاشت UC در کاتالوگ
+- کپی منطق دامنه داخل تست به‌جای فراخوانی Service واقعی
+- PackageReference به EF داخل پروژهٔ Infrastructure.Tests برای تست سرویس
